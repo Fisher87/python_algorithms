@@ -1,8 +1,19 @@
 #!/usr/bin/env python
 # coding=utf-8
-#
-# Sort large text files in a minimum amount of memory
-#
+"""
+ Sort large text files in a minimum amount of memory
+ ---------------------------------------------------
+ 1. 根据固定大小进行数据分块
+ 2. 对每个分块数据进行内部排序
+ 3. 从每个分块数据内读取K((固定大小-预输出buffer)/分块数)数据进行排序，排序完后将预输出大小的数据
+   复制到硬盘，然后清空预输出buffer，接着读取数据merge
+例如：内存是10G, 对90G的数据排序
+1. 读10G数据然后 进行in memory的sort，重复9次。得到9个10G的已经排好序的数据块。
+2. 从每个chunk里分别读1G到9个输入buffer里，进行merge（9个已经排好序的1G数据一起merge），
+   剩下的1G内存作为输出buffer用来存结果。当merge好1G数据后，把这1G的结果复制到硬盘中，
+   然后清空输出buffer，接着merge，直到某个输入buffer中的1G数据都处理完，再向该输入buffer
+   读入1G数据，如此往复直到所有9个数据块中的数据都处理完。
+"""
 import os
 import argparse
 
